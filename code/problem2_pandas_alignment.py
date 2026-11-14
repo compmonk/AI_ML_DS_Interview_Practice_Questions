@@ -17,5 +17,25 @@ import pandas as pd
 
 
 def compute_alignment_metrics(pred_csv: str, truth_csv: str) -> pd.DataFrame:
-    # TODO: Implement your solution here
-    raise NotImplementedError("Implement compute_alignment_metrics")
+
+    pred_df = pd.read_csv(pred_csv)
+    truth_df = pd.read_csv(truth_csv)
+
+    # 1
+    result_df = pd.merge(pred_df, truth_df, left_on="request_id", right_on="request_id", how="inner")
+
+    # 2
+    result_df["predicted_intent"] = result_df["predicted_intent"].fillna("UNKNOWN")
+    result_df["ground_truth_intent"] = result_df["ground_truth_intent"].fillna("UNLABELED")
+
+    # 3
+    result_df["is_correct"] = result_df["predicted_intent"] == result_df["ground_truth_intent"]
+
+    # 4
+    result_df = result_df.groupby("domain").agg({"request_id": "count", "is_correct": "mean", "confidence": "mean"}).sort_index()
+    result_df = result_df.rename(columns={"is_correct": "accuracy", "confidence": "avg_confidence", "request_id": "sample_count"})
+    result_df["accuracy"] = result_df["accuracy"].round(4)
+    result_df["avg_confidence"] = result_df["avg_confidence"].round(4)
+    return result_df.reset_index()
+
+

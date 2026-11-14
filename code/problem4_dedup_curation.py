@@ -25,5 +25,52 @@ import re
 
 
 def curate_eval_prompts(records: list[dict]) -> list[dict]:
-    # TODO: Implement your solution here
-    raise NotImplementedError("Implement curate_eval_prompts")
+    filtered_records = {}
+
+    def redact_pii(prompt: str) -> str:
+        rp = prompt
+        rp = re.sub(r"[1-9][0-9][0-9]-\d{3}-\d{4}", "[PHONE]", rp)
+        rp = re.sub(r"\([1-9][0-9][0-9]\) \d{3}-\d{4}", "[PHONE]", rp)
+        rp = re.sub(r"\S+@\S+\.\S{2,}", "[EMAIL]", rp)
+        return rp
+
+    for record in records:
+        # 1
+        if record["prompt"] is None or len(record["prompt"].strip()) == 0:
+            continue
+
+        # 2
+        redacted_prompt = redact_pii(record["prompt"])
+        record["prompt"] = redacted_prompt
+
+        # 3
+        redacted_prompt = " ".join(redacted_prompt.lower().split())
+
+        # 4
+        if redacted_prompt not in filtered_records:
+            filtered_records[redacted_prompt] = record
+        else:
+            previous = filtered_records[redacted_prompt]
+
+            new_score = (record["quality_score"], record["source"] == "human_curated")
+            old_score = (previous["quality_score"], previous["source"] == "human_curated")
+            if new_score > old_score:
+                filtered_records[redacted_prompt] = record
+
+
+            # if record["quality_score"] > previous["quality_score"]:
+            #     filtered_records[redacted_prompt] = record
+            # elif record["quality_score"] == previous["quality_score"]:
+            #     if previous["source"] == "human_curated":
+            #         continue
+            #     elif record["source"] == "human_curated":
+            #         filtered_records[redacted_prompt] = record
+
+    return sorted(filtered_records.values(), key=lambda x: x["id"])
+
+
+
+
+
+
+

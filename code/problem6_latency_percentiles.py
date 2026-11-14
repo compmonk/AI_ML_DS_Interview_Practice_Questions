@@ -19,9 +19,34 @@ Requirements:
      (If `endpoint` is not present in `sla_thresholds_ms`, default threshold is `float("inf")`, so breach rate is `0.0`).
 4. Return a dict mapping `endpoint -> metrics_dict`.
 """
+from collections import defaultdict
+
 import numpy as np
 
 
 def analyze_endpoint_slas(events: list[dict], sla_thresholds_ms: dict[str, float]) -> dict:
-    # TODO: Implement your solution here
-    raise NotImplementedError("Implement analyze_endpoint_slas")
+    endpoint_latencies = defaultdict(list)
+    
+    for event in events:
+        # 1
+        if event["status"] != "OK" or event["latency_ms"] is None or event["latency_ms"] < 0:
+            continue
+        # 2
+        else:
+            endpoint_latencies[event["endpoint"]].append(event["latency_ms"])
+
+    # 3
+    result = {}
+    for endpoint, ls in sorted(endpoint_latencies.items()):
+        result[endpoint] = {
+            "count": len(ls),
+            "p50_ms": round(np.percentile(ls, 50, method="linear"), 2),
+            "p95_ms": round(np.percentile(ls, 95, method="linear"), 2),
+            "p99_ms": round(np.percentile(ls, 99, method="linear"), 2),
+            "sla_breach_rate": round(sum([1 if l > sla_thresholds_ms.get(endpoint, float("inf")) else 0 for l in ls]) / len(ls), 4)
+        }
+
+    # 4
+    return result
+
+    

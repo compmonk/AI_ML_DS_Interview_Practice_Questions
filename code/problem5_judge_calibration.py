@@ -28,5 +28,46 @@ import pandas as pd
 
 
 def audit_judge_calibration(eval_df: pd.DataFrame) -> dict:
-    # TODO: Implement your solution here
-    raise NotImplementedError("Implement audit_judge_calibration")
+    result = {
+        "total_samples": 0,
+        "forward_agreement": 0.0,
+        "consistent_agreement": 0.0,
+        "position_flip_rate": 0.0,
+        "cohens_kappa": 0.0
+    }
+
+    # 1
+    if len(eval_df) == 0:
+        return result
+
+    # 2
+    forward_agreement = round((eval_df["human_winner"] == eval_df["judge_winner_forward"]).sum() / len(eval_df), 4)
+
+    # 3
+    position_flip_rate = round((eval_df["judge_winner_forward"] != eval_df["judge_winner_swapped"]).sum() / len(eval_df), 4)
+
+    # 4
+    consistent_agreement = round(((eval_df["judge_winner_forward"] == eval_df["human_winner"]) &
+                                  (eval_df["judge_winner_swapped"] == eval_df["human_winner"])).sum() / len(eval_df), 4)
+
+
+    # 5
+    p_o = forward_agreement
+
+    # p_e = P(human="A") * P(judge="A") + P(human="B") * P(judge="B")
+    p_e = ((eval_df["human_winner"] == "A").mean() * (eval_df["judge_winner_forward"] == "A").mean() +
+           (eval_df["human_winner"] == "B").mean() * (eval_df["judge_winner_forward"] == "B").mean())
+
+    if p_e == 1:
+        cohens_kappa = 1.0 if p_o == 1.0 else 0.0
+    else:
+        cohens_kappa = round((p_o - p_e) / (1 - p_e), 4)
+
+
+    result["forward_agreement"] = forward_agreement
+    result["position_flip_rate"] = position_flip_rate
+    result["consistent_agreement"] = consistent_agreement
+    result["cohens_kappa"] = cohens_kappa
+    result["total_samples"] = len(eval_df)
+
+    return result

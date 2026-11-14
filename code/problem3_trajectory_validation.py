@@ -17,5 +17,30 @@ Validation Rules:
 
 
 def validate_agent_trajectory(trace: list[dict]) -> bool:
-    # TODO: Implement your solution here
-    raise NotImplementedError("Implement validate_agent_trajectory")
+    # 1
+    if len(trace) == 0:
+        return False
+
+    for i in range(len(trace)):
+        # 2
+        if trace[i]["step"] != i:
+            return False
+
+        # 3
+        if i == 0 and trace[i]["tool"] != "intent_classifier":
+            return False
+
+        # 4
+        if trace[i]["status"] == "FAILED":
+            if i == len(trace) - 1:
+                return False
+
+            if i + 1 < len(trace) and trace[i + 1]["tool"] not in ("error_recovery", "fallback_handler"):
+                return False
+
+        # 5
+        if i == len(trace) - 1 and trace[i]["status"] not in {"SUCCESS", "TERMINATED"}:
+            return False
+
+    return True
+
