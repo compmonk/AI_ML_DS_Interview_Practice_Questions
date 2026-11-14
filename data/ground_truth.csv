@@ -1,0 +1,6 @@
+request_id,ground_truth_intent
+r_1,play_music
+r_2,get_directions
+r_3,turn_off_lights
+r_4,pause_music
+r_6,send_message

@@ -1,0 +1,6 @@
+request_id,domain,predicted_intent,confidence
+r_1,media,play_music,0.95
+r_2,navigation,get_directions,0.82
+r_3,home_control,turn_on_lights,0.64
+r_4,media,,0.51
+r_5,calendar,create_event,0.88

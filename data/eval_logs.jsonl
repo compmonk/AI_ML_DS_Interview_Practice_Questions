@@ -1,0 +1,5 @@
+{"event_id": "e_101", "model_version": "siri-v2.1", "confidence": 0.89, "latency_ms": 142, "tokens": {"prompt": 45, "completion": 12}}
+{"event_id": "e_102", "model_version": "siri-v2.1", "confidence": 0.42, "latency_ms": 210, "tokens": {"prompt": 60, "completion": 18}}
+{"event_id": "e_103", "model_version": "siri-v2.1", "confidence": 0.94, "latency_ms": 118, "tokens": {"prompt": 30, "completion": 10}}
+{"event_id": "e_104", "model_version": "siri-v2.0", "confidence": 0.78, "latency_ms": 165, "tokens": {"prompt": 50, "completion": 15}}
+{"event_id": "e_105", "model_version": "siri-v2.0", "confidence": 0.91, "latency_ms": 135, "tokens": {"prompt": 40, "completion": 14}}
